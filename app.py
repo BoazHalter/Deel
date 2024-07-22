@@ -50,6 +50,15 @@ def index():
 
     return f"Your reversed IP is: {reversed_ip}"
 
+@app.before_request
+def before_request():
+    if 'ips' not in g:
+        print("Initializing the database.")
+        init_db()
+        g.ips = True
+
 if __name__ == '__main__':
+    print(f"Database path: {os.path.abspath(DATABASE)}")
     init_db()
     app.run(debug=True, host='0.0.0.0')
+
