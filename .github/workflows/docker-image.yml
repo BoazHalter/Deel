@@ -48,6 +48,18 @@ jobs:
       run: |
         docker run --rm -d -p 5000:5000 --name flask-ip-reverser ghcr.io/boazhalter/deel:latest
         # Add any specific tests you want to run here
+        # Wait for the container to be ready
+        for i in {1..30}; do
+          if curl -f http://localhost:5000; then
+            echo "Application is up and running!"
+            exit 0
+          else
+            echo "Waiting for the application to start..."
+            sleep 1
+          fi
+        done
+        echo "Application did not start in time"
+        
         # For now, just check if the container is running
         sleep 10
         docker logs flask-ip-reverser
