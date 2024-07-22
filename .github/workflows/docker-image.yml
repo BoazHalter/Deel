@@ -51,6 +51,6 @@ jobs:
         # For now, just check if the container is running
         sleep 10
         docker logs flask-ip-reverser
-        curl -f http://localhost:5000 || exit 1
+        curl -f http://127.0.0.1:5000 || exit 1
        
         docker stop flask-ip-reverser
