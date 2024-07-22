@@ -42,11 +42,11 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: ghcr.io/deel:latest
+        tags: ghcr.io/BoazHalter/deel:latest
 
     - name: Run tests
       run: |
-        docker run --rm -d -p 5000:5000 --name flask-ip-reverser ghcr.io/deel:latest
+        docker run --rm -d -p 5000:5000 --name flask-ip-reverser ghcr.io/BoazHalter/deel:latest
         # Add any specific tests you want to run here
         # For now, just check if the container is running
         sleep 10
