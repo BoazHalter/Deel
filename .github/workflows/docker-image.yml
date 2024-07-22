@@ -50,6 +50,7 @@ jobs:
         # Add any specific tests you want to run here
         # For now, just check if the container is running
         sleep 10
-        curl -f http://localhost:5000 || exit 1
         docker log flask-ip-reverser
+        curl -f http://localhost:5000 || exit 1
+       
         docker stop flask-ip-reverser
