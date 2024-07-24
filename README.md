@@ -1,2 +1,1 @@
 # Deel
-Technical challenge
