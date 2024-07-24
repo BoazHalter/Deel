@@ -1,6 +1,7 @@
 from flask import Flask, request, g
 import sqlite3
 import os
+import ipaddress
 
 app = Flask(__name__)
 
@@ -36,16 +37,16 @@ def close_connection(exception):
 def reverse_ip(ip):
     return '.'.join(ip.split('.')[::-1])
 
-# Route to handle incoming requests and store reversed IPs
-@app.route('/')
-def index():
+# Function to extract the client's real IP address
+def get_real_ip():
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    # If there are multiple IPs in the header, take the first one
     if ip and ',' in ip:
-      ip = ip.split(',')[0].strip()
-    #ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)  
-    #ip = request.remote_addr
+        ip = ip.split(',')[0].strip()
+
+    # Prioritize IPv4 address if it exists
     try:
-      ip_obj = ipaddress.ip_address(ip)
+        ip_obj = ipaddress.ip_address(ip)
         if ip_obj.version == 6 and ip_obj.ipv4_mapped:
             ip = ip_obj.ipv4_mapped.exploded
         elif ip_obj.version == 6:
@@ -54,6 +55,13 @@ def index():
             ip = ip_obj.exploded
     except ValueError:
         ip = request.remote_addr
+
+    return ip
+
+# Route to handle incoming requests and store reversed IPs
+@app.route('/')
+def index():
+    ip = get_real_ip()
     reversed_ip = reverse_ip(ip)
 
     # Store the reversed IP in the database
