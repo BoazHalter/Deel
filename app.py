@@ -39,24 +39,16 @@ def reverse_ip(ip):
 
 # Function to extract the client's real IP address
 def get_real_ip():
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    # If there are multiple IPs in the header, take the first one
-    if ip and ',' in ip:
-        ip = ip.split(',')[0].strip()
-
-    # Prioritize IPv4 address if it exists
-    try:
-        ip_obj = ipaddress.ip_address(ip)
-        if ip_obj.version == 6 and ip_obj.ipv4_mapped:
-            ip = ip_obj.ipv4_mapped.exploded
-        elif ip_obj.version == 6:
-            ip = ip
-        else:
-            ip = ip_obj.exploded
-    except ValueError:
-        ip = request.remote_addr
-
-    return ip
+    ip_list = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')
+    for ip in ip_list:
+        ip = ip.strip()
+        try:
+            ip_obj = ipaddress.ip_address(ip)
+            if ip_obj.version == 4:
+                return ip
+        except ValueError:
+            continue
+    return request.remote_addr
 
 # Route to handle incoming requests and store reversed IPs
 @app.route('/')
