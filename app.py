@@ -35,20 +35,26 @@ def close_connection(exception):
 
 # Function to reverse the IP address
 def reverse_ip(ip):
+    if ':' in ip:
+        return ip  # Skip reversing if it's an IPv6 address
     return '.'.join(ip.split('.')[::-1])
 
 # Function to extract the client's real IP address
 def get_real_ip():
-    ip_list = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')
+    x_forwarded_for = request.headers.get('X-Forwarded-For', request.remote_addr)
+    ip_list = x_forwarded_for.split(',')
+
     for ip in ip_list:
         ip = ip.strip()
         try:
             ip_obj = ipaddress.ip_address(ip)
-            if ip_obj.version == 4:
+            if ip_obj.version == 4 and not ip_obj.is_private:
                 return ip
         except ValueError:
             continue
-    return request.remote_addr
+
+    # Fall back to the first IP in the list or request.remote_addr
+    return ip_list[0].strip() if ip_list else request.remote_addr
 
 # Route to handle incoming requests and store reversed IPs
 @app.route('/')
