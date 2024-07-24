@@ -44,6 +44,16 @@ def index():
       ip = ip.split(',')[0].strip()
     #ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)  
     #ip = request.remote_addr
+    try:
+      ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.version == 6 and ip_obj.ipv4_mapped:
+            ip = ip_obj.ipv4_mapped.exploded
+        elif ip_obj.version == 6:
+            ip = ip
+        else:
+            ip = ip_obj.exploded
+    except ValueError:
+        ip = request.remote_addr
     reversed_ip = reverse_ip(ip)
 
     # Store the reversed IP in the database
