@@ -39,8 +39,13 @@ def reverse_ip(ip):
 # Route to handle incoming requests and store reversed IPs
 @app.route('/')
 def index():
-    print(request)
-    ip = request.remote_addr
+    ip = request.META.get("HTTP_X_FORWARDED_FOR", None)
+    if ip:
+        # X_FORWARDED_FOR returns client1, proxy1, proxy2,...
+        ip = ip.split(", ")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR", "")
+    #ip = request.remote_addr
     reversed_ip = reverse_ip(ip)
 
     # Store the reversed IP in the database
